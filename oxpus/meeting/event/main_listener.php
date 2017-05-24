@@ -43,7 +43,7 @@ class main_listener implements EventSubscriberInterface
 
 	/* @var \phpbb\extension\manager */
 	protected $phpbb_extension_manager;
-	
+
 	/* @var \phpbb\path_helper */
 	protected $phpbb_path_helper;
 
@@ -64,7 +64,7 @@ class main_listener implements EventSubscriberInterface
 
 	/* @var \phpbb\template\template */
 	protected $template;
-	
+
 	/* @var \phpbb\user */
 	protected $user;
 
@@ -105,7 +105,7 @@ class main_listener implements EventSubscriberInterface
 	}
 
 	public function load_language_on_setup($event)
-	{	
+	{
 		$lang_set_ext = $event['lang_set_ext'];
 		$lang_set_ext[] = array(
 			'ext_name' => 'oxpus/meeting',
@@ -138,24 +138,24 @@ class main_listener implements EventSubscriberInterface
 			'MEETING_EXT_PATH_WEB'		=> $ext_path_web,
 		));
 
-		$ext_main_link = $this->helper->route('meeting_controller');
+		$ext_main_link = $this->helper->route('oxpus_meeting_controller');
 
 		if (!defined('IN_MEETING') && $this->auth->acl_get('u_meeting') && !defined('ADMIN_START'))
 		{
 			$this->db->return_on_error = true;
-	
+
 			// Get access status for all meetings
 			$sql = "SELECT m.meeting_id, mg.meeting_group FROM " . MEETING_DATA_TABLE . " m, " . MEETING_USERGROUP_TABLE . " mg
 				WHERE mg.meeting_id = m.meeting_id";
 			$result = $this->db->sql_query($sql);
-		
+
 			$meetings_access_ids = array();
-		
+
 			while ($row = $this->db->sql_fetchrow($result))
 			{
 				$meeting_id		= $row['meeting_id'];
 				$meeting_group	= $row['meeting_group'];
-		
+
 				if ($meeting_group == -1)
 				{
 					$meetings_access_ids[] = $meeting_id;
@@ -170,16 +170,16 @@ class main_listener implements EventSubscriberInterface
 					$result_auth_id = $this->db->sql_query($sql_auth_id);
 					$count_usergroups = $this->db->sql_affectedrows($result_auth_id);
 					$this->db->sql_freeresult($result_auth_id);
-		
+
 					if ($count_usergroups > 0)
 					{
 						$meetings_access_ids[] = $meeting_id;
 					}
 				}
 			}
-		
+
 			$this->db->sql_freeresult($result);
-		
+
 			if (sizeof($meetings_access_ids) > 0)
 			{
 				$meeting_ids = (sizeof($meetings_access_ids) == 1) ? $meetings_access_ids[0] : implode(',', $meetings_access_ids);
@@ -193,7 +193,7 @@ class main_listener implements EventSubscriberInterface
 			{
 				$sql_meeting_access = '';
 			}
-		
+
 			if ($sql_meeting_access != '')
 			{
 				$sql = "SELECT COUNT(meeting_id) AS total FROM " . MEETING_DATA_TABLE . "
@@ -207,7 +207,7 @@ class main_listener implements EventSubscriberInterface
 			{
 				$meeting_active_ids = 0;
 			}
-		
+
 			if (!$meeting_active_ids)
 			{
 				$meeting_active_string = $this->language->lang('NO_ACTIVE_MEETINGS');
@@ -220,7 +220,7 @@ class main_listener implements EventSubscriberInterface
 			{
 				$meeting_active_string = $this->language->lang('ACTIVE_MEETINGS', $meeting_active_ids);
 			}
-		
+
 			$u_meeting_link = $ext_main_link;
 			$l_meeting_link = $meeting_active_string;
 		}
@@ -229,7 +229,7 @@ class main_listener implements EventSubscriberInterface
 			$u_meeting_link = '';
 			$l_meeting_link = '';
 		}
-	
+
 		$this->db->return_on_error = false;
 
 		$this->template->assign_vars(array(
@@ -247,7 +247,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		if ($event['row']['session_page'] === 'app.php/meeting' || $event['row']['session_page'] === 'app.' . $this->php_ext . '/meeting.php')
 		{
-			$ext_link = $this->helper->route('meeting_controller');
+			$ext_link = $this->helper->route('oxpus_meeting_controller');
 
 			$event['location'] = $this->language->lang('MEETING');
 			$event['location_url'] = $ext_link;
@@ -261,7 +261,7 @@ class main_listener implements EventSubscriberInterface
 		include_once($ext_path . '/includes/helpers/constants.' . $this->php_ext);
 
 		$table_ary = array(MEETING_COMMENT_TABLE, MEETING_GUESTNAMES_TABLE, MEETING_USER_TABLE);
-	
+
 		// Delete the miscellaneous (non-post) data for the user
 		foreach ($table_ary as $table)
 		{

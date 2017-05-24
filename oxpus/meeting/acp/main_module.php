@@ -83,7 +83,7 @@ class main_module
 		$m_date					= $request->variable('m_date', '');
 		$m_time					= $request->variable('m_date_time', '');
 		$m_id					= $request->variable('m_id', 0);
-		$meeting_desc			= $request->variable('meeting_desc', request_var('message', '', true), true);
+		$meeting_desc			= $request->variable('meeting_desc', $request->variable('message', '', true), true);
 		$meeting_guest_names	= $request->variable('meeting_guest_names', 0);
 		$meeting_guest_overall	= $request->variable('meeting_guest_overall', 0);
 		$meeting_guest_single	= $request->variable('meeting_guest_single', 0);
@@ -99,7 +99,7 @@ class main_module
 		$start					= $request->variable('start', 0);
 		$u_date					= $request->variable('u_date', '');
 		$u_time					= $request->variable('u_date_time', '');
-	
+
 		// Prepare basic link for various form actions
 		$basic_values = "sort_field=$sort_field&amp;sort_order=$sort_order&amp;filter_by=$filter_by&amp;filter=$filter&amp;closed=$closed&amp;start=$start";
 		$basic_link = $this->u_action . "i=meeting&amp;mode=$mode&amp;" . $basic_values;
@@ -107,7 +107,7 @@ class main_module
 
 		// Prepare filter settings
 		$sql_filter = ( $filter_by == 'none' ) ? '' : (($filter) ? " WHERE $filter_by LIKE ('%$filter%')" : '' );
-		
+
 		// What shall we do on cancel a deleting
 		if ($cancel)
 		{
@@ -144,21 +144,21 @@ class main_module
 				while ($row = $db->sql_fetchrow($result))
 				{
 					$default_config[$row['config_name']] = $row['config_value'];
-		
+
 					$new[$row['config_name']] = $request->variable($row['config_name'], $default_config[$row['config_name']]);
-		
+
 					if ($submit)
 					{
 						$config->set($row['config_name'], $new[$row['config_name']]);
 					}
 				}
-		
+
 				if ($submit)
 				{
 					$sql = 'UPDATE ' . GROUPS_TABLE . ' SET ' . $db->sql_build_array('UPDATE', array(
 						'group_meeting_create' => 0));
 					$db->sql_query($sql);
-		
+
 					if (sizeof($group_id) > 0)
 					{
 						if ($new['meeting_user_enter'] == 2)
@@ -172,7 +172,7 @@ class main_module
 					$sql = 'UPDATE ' . GROUPS_TABLE . ' SET ' . $db->sql_build_array('UPDATE', array(
 						'group_meeting_select' => 0));
 					$db->sql_query($sql);
-		
+
 					if ($group_id_2[0] == -1)
 					{
 						$sql = 'UPDATE ' . GROUPS_TABLE . ' SET ' . $db->sql_build_array('UPDATE', array(
@@ -191,31 +191,31 @@ class main_module
 					$message = $language->lang('MEETING_CONFIG_UPDATED') . adm_back_link($this->u_action);
 					trigger_error($message);
 				}
-			
+
 				$users_allow_enter_meeting_group	= ( $new['meeting_user_enter'] == 2 ) ? 'checked="checked"' : '';
-			
+
 				$users_allow_enter_meeting_yes	= ( $new['meeting_user_enter'] == 1 ) ? 'checked="checked"' : '';
 				$users_allow_enter_meeting_no	= ( !$new['meeting_user_enter'] ) ? 'checked="checked"' : '';
-			
+
 				$users_allow_edit_meeting_yes	= ( $new['meeting_user_edit'] ) ? 'checked="checked"' : '';
 				$users_allow_edit_meeting_no	= ( !$new['meeting_user_edit'] ) ? 'checked="checked"' : '';
-			
+
 				$users_allow_delete_meeting_yes	= ( $new['meeting_user_delete'] ) ? 'checked="checked"' : '';
 				$users_allow_delete_meeting_no	= ( !$new['meeting_user_delete'] ) ? 'checked="checked"' : '';
-			
+
 				$users_allow_delete_meeting_comments_yes	= ( $new['meeting_user_delete_comments'] ) ? 'checked="checked"' : '';
 				$users_allow_delete_meeting_comments_no		= ( !$new['meeting_user_delete_comments'] ) ? 'checked="checked"' : '';
-			
+
 				$meeting_notify_yes	= ( $new['meeting_notify'] ) ? 'checked="checked"' : '';
 				$meeting_notify_no	= ( !$new['meeting_notify'] ) ? 'checked="checked"' : '';
-	
+
 				$meeting_first_weekday_m = ( $new['meeting_first_weekday'] == 'm' ) ? 'checked="checked"' : '';
 				$meeting_first_weekday_s = ( $new['meeting_first_weekday'] == 's' ) ? 'checked="checked"' : '';
- 		
+
 				$sql = 'SELECT group_id, group_name, group_meeting_create, group_meeting_select, group_type FROM ' . GROUPS_TABLE . '
 					ORDER BY group_name';
 				$result = $db->sql_query($sql);
-			
+
 				$s_meeting_usergroup = '<select name="group_id[]" multiple="multiple" size="10">';
 				$s_meeting_usergroup .= '<option value="-1"' . ((!$users_allow_enter_meeting_group) ? 'selected="selected"' : '') . '>' . $language->lang('MEETING_ALL_USERS') . '</option>';
 
@@ -223,7 +223,7 @@ class main_module
 				$s_meeting_usergroup_2 .= '<option value="-1" {SELECT} >' . $language->lang('MEETING_ALL_GROUPS') . '</option>';
 
 				$group_select = true;
-					
+
 				while ($row = $db->sql_fetchrow($result))
 				{
 					$group_name = ($row['group_type'] == GROUP_SPECIAL) ? $language->lang('G_' . $row['group_name']) : $row['group_name'];
@@ -241,7 +241,7 @@ class main_module
 				}
 
 				$db->sql_freeresult($result);
-	
+
 				$s_meeting_usergroup .= '</select>';
 				$s_meeting_usergroup_2 .= '</select>';
 
@@ -254,7 +254,7 @@ class main_module
 				{
 					$s_meeting_usergroup_2 = str_replace(' {SELECT} ', '', $s_meeting_usergroup_2);
 				}
-	
+
 				$s_meeting_sign_perm = '<select name="meeting_sign_perm">';
 				$s_meeting_sign_perm .= '<option value="0">' . $language->lang('MEETING_SIGN_OTHER_P1') . '</option>';
 				$s_meeting_sign_perm .= '<option value="1">' . $language->lang('MEETING_SIGN_OTHER_P2') . '</option>';
@@ -267,34 +267,34 @@ class main_module
 				$template->assign_vars(array(
 					'MODULE_NAME'		=> $language->lang('MEETING_CONFIG'),
 					'MODULE_EXPLAIN'	=> $language->lang('MEETING_CONFIG_EXPLAIN'),
-			
+
 					'USER_ALLOW_ENTER_MEETING_GROUP'	=> $users_allow_enter_meeting_group,
-			
+
 					'USER_ALLOW_ENTER_MEETING_YES'	=> $users_allow_enter_meeting_yes,
-					'USER_ALLOW_ENTER_MEETING_NO'	=> $users_allow_enter_meeting_no, 
-			
+					'USER_ALLOW_ENTER_MEETING_NO'	=> $users_allow_enter_meeting_no,
+
 					'USER_ALLOW_EDIT_MEETING_YES'	=> $users_allow_edit_meeting_yes,
-					'USER_ALLOW_EDIT_MEETING_NO'	=> $users_allow_edit_meeting_no, 
-			
+					'USER_ALLOW_EDIT_MEETING_NO'	=> $users_allow_edit_meeting_no,
+
 					'USER_ALLOW_DELETE_MEETING_YES'	=> $users_allow_delete_meeting_yes,
-					'USER_ALLOW_DELETE_MEETING_NO'	=> $users_allow_delete_meeting_no, 
-			
+					'USER_ALLOW_DELETE_MEETING_NO'	=> $users_allow_delete_meeting_no,
+
 					'USER_ALLOW_DELETE_MEETING_COMMENTS_YES'	=> $users_allow_delete_meeting_comments_yes,
-					'USER_ALLOW_DELETE_MEETING_COMMENTS_NO'		=> $users_allow_delete_meeting_comments_no, 
-			
+					'USER_ALLOW_DELETE_MEETING_COMMENTS_NO'		=> $users_allow_delete_meeting_comments_no,
+
 					'MEETING_NOTIFY_YES'	=> $meeting_notify_yes,
-					'MEETING_NOTIFY_NO'		=> $meeting_notify_no, 
-			
+					'MEETING_NOTIFY_NO'		=> $meeting_notify_no,
+
 					'MEETING_FIRST_WEEKDAY_M'	=> $meeting_first_weekday_m,
 					'MEETING_FIRST_WEEKDAY_S'	=> $meeting_first_weekday_s,
 
 					'S_USERGROUPS_CREATE'	=> $s_meeting_usergroup,
 					'S_USERGROUPS_SELECT'	=> $s_meeting_usergroup_2,
 					'S_MEETING_SIGN_PERM'	=> $s_meeting_sign_perm,
-			
+
 					'S_FORM_ACTION'	=> $basic_link,
 				));
-				
+
 				$template->assign_var('S_MEETING_CONFIG', true);
 
 			break;
@@ -347,9 +347,9 @@ class main_module
 					$allow_smilies	= ($config['allow_smilies']) ? true : false;
 					$uid = $bitfield = '';
 					$flags = 0;
-					
+
 					generate_text_for_storage($meeting_desc, $uid, $bitfield, $flags, $allow_bbcode, true, $allow_smilies);
-	
+
 					if ($m_id)
 					{
 						$sql = 'DELETE FROM ' . MEETING_USERGROUP_TABLE . '
@@ -363,7 +363,7 @@ class main_module
 						$next_id = $db->sql_fetchfield('max_id') + 1;
 						$db->sql_freeresult($result);
 					}
-				
+
 					$next_id = ($m_id) ? $m_id : $next_id;
 
 					if (isset($group_id) && $group_id[0] == -1 && !$meeting_places)
@@ -373,14 +373,14 @@ class main_module
 						$meeting_places = $db->sql_fetchfield('total_users');
 						$db->sql_freeresult($result);
 					}
-				
+
 					if (isset($group_id) && $group_id[0] != -1)
 					{
 						$usergroups = '';
 						$sql_usergroups = '';
-				
+
 						$sql_usergroups = ' AND ' . $db->sql_in_set('g.group_id', $group_id);
-				
+
 						$sql = 'SELECT COUNT(DISTINCT ug.user_id) AS total_users FROM ' . USER_GROUP_TABLE . ' ug, ' . GROUPS_TABLE . ' g
 							WHERE ug.group_id = g.group_id
 							AND ug.user_pending <> ' . true . "
@@ -388,10 +388,10 @@ class main_module
 						$result = $db->sql_query($sql);
 						$places = $db->sql_fetchfield('total_users');
 						$db->sql_freeresult($result);
-				
+
 						$meeting_places = ( $places < $meeting_places || $meeting_places == 0 ) ? $places : $meeting_places;
 					}
-				
+
 					if (sizeof($group_id))
 					{
 						if ($group_id[0] == -1)
@@ -412,7 +412,7 @@ class main_module
 							}
 						}
 					}
-						
+
 					if ($m_id)
 					{
 						$sql = 'UPDATE ' . MEETING_DATA_TABLE . ' SET ' . $db->sql_build_array('UPDATE', array(
@@ -480,21 +480,21 @@ class main_module
 						$template->set_filenames(array(
 							'body' => 'confirm_body.html')
 						);
-					
+
 						$s_hidden_fields = array(
 							'action'	=> 'delete',
 							'm_id'		=> $m_id,
 							'start'		=> $start,
 						);
-					
+
 						$template->assign_vars(array(
 							'MESSAGE_TITLE'		=> $language->lang('MEETING_DELETE'),
 							'MESSAGE_TEXT'		=> $language->lang('MEETING_DELETE_EXPLAIN'),
-				
+
 							'S_HIDDEN_FIELDS'	=> build_hidden_fields($s_hidden_fields),
 							'S_CONFIRM_ACTION'	=> $basic_link,
 						));
-					
+
 						page_footer();
 					}
 					else
@@ -514,15 +514,15 @@ class main_module
 							$sql = 'DELETE FROM ' . $table . '
 								WHERE meeting_id = ' . (int) $m_id;
 							$db->sql_query($sql);
-						}					
-					
+						}
+
 						$phpbb_log->add('admin', $user->data['user_id'], $user->ip, 'MEETING_LOG_DELETE', false, array($meeting_subject));
 
 						redirect($basic_link_smode . '&amp;mode=manage');
 					}
 				}
 
-				// Edit 
+				// Edit
 				if ($m_id || $mode == 'add')
 				{
 					$usergroups = array();
@@ -531,22 +531,22 @@ class main_module
 						WHERE group_meeting_select = ' . true . '
 						ORDER BY group_name';
 					$result = $db->sql_query($sql);
-				
+
 					$s_meeting_usergroup = '<select name="group_id[]" multiple="multiple" size="10">';
 					$s_meeting_usergroup .= '<option value="-1"' . (($mode == 'add') ? 'selected="selected"' : '') . '>' . $language->lang('MEETING_ALL_USERS') . '</option>';
-				
+
 					while ($row = $db->sql_fetchrow($result))
 					{
 						$group_name = ($row['group_type'] == GROUP_SPECIAL) ? $language->lang('G_' . $row['group_name']) : $row['group_name'];
-	
+
 						$s_meeting_usergroup .= '<option value="' . $row['group_id'] . '">' . $group_name . '</option>';
 						$usergroups[] = $row['group_id'];
 					}
-				
+
 					$s_meeting_usergroup .= '</select>';
-				
+
 					$db->sql_freeresult($result);
-	
+
 					$meeting_location			= '';
 					$meeting_subject			= '';
 					$meeting_desc				= '';
@@ -567,8 +567,8 @@ class main_module
 					$s_hidden_fields = array(
 						'start'	=> $start,
 					);
-					
-					// Get the data for the choosen meeting or display an empty form 
+
+					// Get the data for the choosen meeting or display an empty form
 					if ($mode == 'manage' && $m_id)
 					{
 						$s_hidden_fields = array_merge($s_hidden_fields, array(
@@ -580,13 +580,13 @@ class main_module
 							AND meeting_group <> -1';
 						$result = $db->sql_query($sql);
 						$total_saved_groups = $db->sql_affectedrows($result);
-						
+
 						if (!$total_saved_groups)
 						{
 							$s_meeting_usergroup = str_replace('value="-1">', 'value="-1" selected="selected">', $s_meeting_usergroup);
 						}
 						else
-						{		
+						{
 							while ( $row = $db->sql_fetchrow($result) )
 							{
 								if (in_array($row['meeting_group'], $usergroups))
@@ -649,22 +649,22 @@ class main_module
 					$url_status		= ($config['allow_post_links']) ? true : false;
 					$flash_status	= ($config['allow_post_flash']) ? true : false;
 					$quote_status	= true;
-	
+
 					if (!class_exists('bbcode'))
 					{
-						include($phpbb_root_path . "includes/bbcode.$phpEx"); 
+						include($phpbb_root_path . "includes/bbcode.$phpEx");
 					}
-			
+
 					if (!function_exists('generate_smilies'))
 					{
-						include($phpbb_root_path . "includes/functions_posting.$phpEx"); 
+						include($phpbb_root_path . "includes/functions_posting.$phpEx");
 					}
-			
+
 					if (!function_exists('display_custom_bbcodes'))
 					{
-						include($phpbb_root_path . "includes/functions_display.$phpEx"); 
+						include($phpbb_root_path . "includes/functions_display.$phpEx");
 					}
-			
+
 					$user->add_lang('posting');
 					display_custom_bbcodes();
 
@@ -704,18 +704,18 @@ class main_module
 						'S_FORM_ACTION'		=> $basic_link,
 					));
 				}
-				
+
 				// Display the list of existing meetings
 				if ($mode == 'manage' && !$m_id)
 				{
 					// Get per page value
 					$per_page = $config['topics_per_page'];
-					
+
 					$closed_no		= '';
 					$closed_yes		= '';
 					$closed_period	= '';
 					$closed_none	= '';
-				
+
 					$sql_closed = (!$sql_filter) ? ' WHERE ' : ' AND ';
 					$current_time = time();
 
@@ -738,10 +738,10 @@ class main_module
 							$closed_none = 'checked="checked"';
 							break;
 					}
-				
+
 					// SQL statement to read from a table
 					$sql = 'SELECT * FROM ' . MEETING_DATA_TABLE . '
-						' . $db->sql_escape($sql_filter) . ' 
+						' . $db->sql_escape($sql_filter) . '
 						' . $db->sql_escape($sql_closed) . '
 						ORDER BY ' . $db->sql_escape($sort_field) . ' ' . $db->sql_escape($sort_order);
 					$result = $db->sql_query_limit($sql, $per_page, $start);
@@ -753,10 +753,10 @@ class main_module
 					$template->assign_vars(array(
 						'MODULE_NAME'		=> $language->lang('MEETING_MANAGE'),
 						'MODULE_EXPLAIN'	=> $language->lang('MEETING_MANAGE_EXPLAIN'),
-				
+
 						'L_MEETING_TIME'	=> $language->lang('TIME'),
 					));
-				
+
 					// Create the sort and filter fields
 					$sort_by_field = '<select name="sort_field">';
 					$sort_by_field .= '<option value="meeting_subject">'	.	$language->lang('MEETING_SUBJECT')	.	'</option>';
@@ -765,34 +765,34 @@ class main_module
 					$sort_by_field .= '<option value="meeting_location">'	.	$language->lang('MEETING_LOCATION')	.	'</option>';
 					$sort_by_field .= '</select>';
 					$sort_by_field = str_replace('value="'.$sort_field.'">', 'value="'.$sort_field.'" selected="selected">', $sort_by_field);
-				
+
 					$sort_by_order = '<select name="sort_order">';
 					$sort_by_order .= '<option value="ASC">' . $language->lang('MEETING_SORT_ASC') . '</option>';
 					$sort_by_order .= '<option value="DESC">' . $language->lang('MEETING_SORT_DESC') . '</option>';
 					$sort_by_order .= '</select>';
 					$sort_by_order = str_replace('value="'.$sort_order.'">', 'value="'.$sort_order.'" selected="selected">', $sort_by_order);
-				
+
 					$filter_by_field = '<select name="filter_by">';
 					$filter_by_field .= '<option value="none">---</option>';
 					$filter_by_field .= '<option value="meeting_subject">' . $language->lang('MEETING_SUBJECT') . '</option>';
 					$filter_by_field .= '<option value="meeting_location">' . $language->lang('MEETING_LOCATION') . '</option>';
 					$filter_by_field .= '</select>';
 					$filter_by_field = str_replace('value="'.$filter_by.'">', 'value="'.$filter_by.'" selected="selected">', $filter_by_field);
-				
+
 					// Output the sorting and filter values
 					$template->assign_vars(array(
 						'SORT_BY_FIELD'		=> $sort_by_field,
 						'SORT_BY_ORDER'		=> $sort_by_order,
 						'FILTER_BY_FIELD'	=> $filter_by_field,
 						'FILTER_FIELD'		=> $filter,
-				
+
 						'CLOSED_NO'			=> $closed_no,
 						'CLOSED_YES'		=> $closed_yes,
 						'CLOSED_PERIOD'		=> $closed_period,
 						'CLOSED_NONE'		=> $closed_none,
 						'S_FORM_ACTION'		=> $basic_link,
 					));
-				
+
 					if ($total_meeting)
 					{
 						// Cycle a loop through all data
@@ -805,18 +805,18 @@ class main_module
 							$meeting_time		= meeting_date($meeting_check_time, $user);
 							$meeting_end		= (!$meeting_check_end) ? $meeting_time : meeting_date($meeting_check_end, $user);
 							$meeting_until		= meeting_date($meeting_check_until, $user);
-				
+
 							$meeting_location	= $meetingrow[$i]['meeting_location'];
 							$meeting_link		= $meetingrow[$i]['meeting_link'];
 							$meeting_subject	= $meetingrow[$i]['meeting_subject'];
 							$meeting_location	= ($meeting_link != '') ? '<a href="' . $meeting_link . '">' . $meeting_location . '</a>' : $meeting_location;
-				
+
 							$meeting_id			= $meetingrow[$i]['meeting_id'];
 							$meeting_edit		= $basic_link_smode . "&amp;mode=manage&amp;m_id=$meeting_id";
 							$meeting_delete		= $basic_link_smode . "&amp;mode=manage&amp;action=delete&amp;m_id=$meeting_id";
-				
+
 							$meeting_closed		= ($meeting_check_time < time()) ? $language->lang('YES') : (($meeting_check_until < time()) ? $language->lang('MEETING_NO_PERIOD') : $language->lang('NO'));
-				
+
 							// Output the values
 							$template->assign_block_vars('meeting_row', array(
 								'MEETING_TIME'		=> $meeting_time . (($meeting_end == $meeting_time) ? '' : '<br />&raquo;<br />' . $meeting_end),
@@ -828,10 +828,10 @@ class main_module
 								'MEETING_DELETE'	=> $meeting_delete)
 							);
 						}
-				
+
 						// Create the pagination
-						$sql = 'SELECT * FROM ' . MEETING_DATA_TABLE . ' 
-							' . $db->sql_escape($sql_filter) . ' 
+						$sql = 'SELECT * FROM ' . MEETING_DATA_TABLE . '
+							' . $db->sql_escape($sql_filter) . '
 							' . $db->sql_escape($sql_closed);
 						$result = $db->sql_query($sql);
 						$total_meetings = $db->sql_affectedrows($result);
@@ -843,7 +843,7 @@ class main_module
 							$pagination->generate_template_pagination(
 								$this->u_action,
 								'pagination', 'start', $total_meetings, $per_page, $start);
-								
+
 							$template->assign_vars(array(
 								'PAGE_NUMBER'		=> $pagination->on_page($total_meetings, $per_page, $start),
 								'TOTAL_MEETINGS'	=> $language->lang('MEETING_TOTALS', $total_meetings),
@@ -855,7 +855,7 @@ class main_module
 						// Output message if no meeting was found
 						$template->assign_var('S_NO_MEETING', true);
 					}
-				} 				
+				}
 
 				if ($mode == 'add' || $mode == 'manage' && $m_id)
 				{
